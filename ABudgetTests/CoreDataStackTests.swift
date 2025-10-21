@@ -49,44 +49,52 @@ final class CoreDataStackTests: XCTestCase {
 
     // MARK: - Save Tests
 
-    func testSaveTestEntity() async throws {
+    func testSaveCategory() async throws {
         // Given: A Core Data context
         let context = coreDataStack.viewContext
 
-        // When: Creating and saving a test entity
-        let testEntity = TestEntity(context: context)
-        testEntity.id = UUID()
-        testEntity.name = "Test Entity"
+        // When: Creating and saving a test category
+        let category = ABudget.Category(context: context)
+        category.id = UUID()
+        category.name = "Test Category"
+        category.isDefault = false
+        category.sortOrder = 1
+        category.createdAt = Date()
+        category.updatedAt = Date()
 
         try await coreDataStack.saveContext()
 
-        // Then: The entity should be saved successfully
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
+        // Then: The category should be saved successfully
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
         let results = try context.fetch(fetchRequest)
 
-        XCTAssertEqual(results.count, 1, "Should have exactly one test entity")
-        XCTAssertEqual(results.first?.name, "Test Entity", "Entity name should match")
-        XCTAssertNotNil(results.first?.id, "Entity ID should not be nil")
+        XCTAssertEqual(results.count, 1, "Should have exactly one category")
+        XCTAssertEqual(results.first?.name, "Test Category", "Category name should match")
+        XCTAssertNotNil(results.first?.id, "Category ID should not be nil")
     }
 
     func testSaveMultipleEntities() async throws {
         // Given: A Core Data context
         let context = coreDataStack.viewContext
 
-        // When: Creating and saving multiple entities
+        // When: Creating and saving multiple categories
         for i in 1...5 {
-            let testEntity = TestEntity(context: context)
-            testEntity.id = UUID()
-            testEntity.name = "Test Entity \(i)"
+            let category = ABudget.Category(context: context)
+            category.id = UUID()
+            category.name = "Test Category \(i)"
+            category.isDefault = i == 1
+            category.sortOrder = Int16(i)
+            category.createdAt = Date()
+            category.updatedAt = Date()
         }
 
         try await coreDataStack.saveContext()
 
-        // Then: All entities should be saved
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
+        // Then: All categories should be saved
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
         let results = try context.fetch(fetchRequest)
 
-        XCTAssertEqual(results.count, 5, "Should have exactly 5 test entities")
+        XCTAssertEqual(results.count, 5, "Should have exactly 5 categories")
     }
 
     func testSaveContextWithoutChanges() async throws {
@@ -101,128 +109,157 @@ final class CoreDataStackTests: XCTestCase {
 
     // MARK: - Fetch Tests
 
-    func testFetchTestEntities() async throws {
-        // Given: Multiple test entities in the database
+    func testFetchCategories() async throws {
+        // Given: Multiple categories in the database
         let context = coreDataStack.viewContext
-        let expectedNames = ["Entity 1", "Entity 2", "Entity 3"]
+        let expectedNames = ["Groceries", "Entertainment", "Transportation"]
 
-        for name in expectedNames {
-            let entity = TestEntity(context: context)
-            entity.id = UUID()
-            entity.name = name
+        for (index, name) in expectedNames.enumerated() {
+            let category = ABudget.Category(context: context)
+            category.id = UUID()
+            category.name = name
+            category.isDefault = false
+            category.sortOrder = Int16(index)
+            category.createdAt = Date()
+            category.updatedAt = Date()
         }
 
         try await coreDataStack.saveContext()
 
-        // When: Fetching all test entities
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
+        // When: Fetching all categories
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
         let results = try context.fetch(fetchRequest)
 
-        // Then: All entities should be fetched
-        XCTAssertEqual(results.count, expectedNames.count, "Should fetch all entities")
+        // Then: All categories should be fetched
+        XCTAssertEqual(results.count, expectedNames.count, "Should fetch all categories")
 
         let fetchedNames = results.map { $0.name ?? "" }
         for name in expectedNames {
-            XCTAssertTrue(fetchedNames.contains(name), "Should contain entity named \(name)")
+            XCTAssertTrue(fetchedNames.contains(name), "Should contain category named \(name)")
         }
     }
 
     func testFetchWithPredicate() async throws {
-        // Given: Multiple test entities with different names
+        // Given: Multiple categories with different names
         let context = coreDataStack.viewContext
 
-        let entity1 = TestEntity(context: context)
-        entity1.id = UUID()
-        entity1.name = "Apple"
+        let category1 = ABudget.Category(context: context)
+        category1.id = UUID()
+        category1.name = "Food"
+        category1.isDefault = false
+        category1.sortOrder = 1
+        category1.createdAt = Date()
+        category1.updatedAt = Date()
 
-        let entity2 = TestEntity(context: context)
-        entity2.id = UUID()
-        entity2.name = "Banana"
+        let category2 = ABudget.Category(context: context)
+        category2.id = UUID()
+        category2.name = "Transportation"
+        category2.isDefault = false
+        category2.sortOrder = 2
+        category2.createdAt = Date()
+        category2.updatedAt = Date()
 
-        let entity3 = TestEntity(context: context)
-        entity3.id = UUID()
-        entity3.name = "Apple Pie"
+        let category3 = ABudget.Category(context: context)
+        category3.id = UUID()
+        category3.name = "Fast Food"
+        category3.isDefault = false
+        category3.sortOrder = 3
+        category3.createdAt = Date()
+        category3.updatedAt = Date()
 
         try await coreDataStack.saveContext()
 
-        // When: Fetching entities with a predicate
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name CONTAINS[cd] %@", "apple")
+        // When: Fetching categories with a predicate
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
+        fetchRequest.predicate = NSPredicate(format: "name CONTAINS[cd] %@", "food")
         let results = try context.fetch(fetchRequest)
 
-        // Then: Should only fetch matching entities
-        XCTAssertEqual(results.count, 2, "Should fetch 2 entities containing 'apple'")
+        // Then: Should only fetch matching categories
+        XCTAssertEqual(results.count, 2, "Should fetch 2 categories containing 'food'")
     }
 
     func testFetchWithSortDescriptor() async throws {
-        // Given: Multiple test entities
+        // Given: Multiple categories
         let context = coreDataStack.viewContext
-        let names = ["Zebra", "Apple", "Mango"]
+        let names = ["Utilities", "Entertainment", "Food"]
 
-        for name in names {
-            let entity = TestEntity(context: context)
-            entity.id = UUID()
-            entity.name = name
+        for (index, name) in names.enumerated() {
+            let category = ABudget.Category(context: context)
+            category.id = UUID()
+            category.name = name
+            category.isDefault = false
+            category.sortOrder = Int16(index)
+            category.createdAt = Date()
+            category.updatedAt = Date()
         }
 
         try await coreDataStack.saveContext()
 
         // When: Fetching with sort descriptor
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         let results = try context.fetch(fetchRequest)
 
         // Then: Results should be sorted
-        XCTAssertEqual(results.count, 3, "Should fetch all 3 entities")
-        XCTAssertEqual(results[0].name, "Apple")
-        XCTAssertEqual(results[1].name, "Mango")
-        XCTAssertEqual(results[2].name, "Zebra")
+        XCTAssertEqual(results.count, 3, "Should fetch all 3 categories")
+        XCTAssertEqual(results[0].name, "Entertainment")
+        XCTAssertEqual(results[1].name, "Food")
+        XCTAssertEqual(results[2].name, "Utilities")
     }
 
     // MARK: - Delete Tests
 
     func testDeleteEntity() async throws {
-        // Given: A saved test entity
+        // Given: A saved category
         let context = coreDataStack.viewContext
-        let testEntity = TestEntity(context: context)
-        testEntity.id = UUID()
-        testEntity.name = "To Be Deleted"
+        let category = ABudget.Category(context: context)
+        category.id = UUID()
+        category.name = "To Be Deleted"
+        category.isDefault = false
+        category.sortOrder = 1
+        category.createdAt = Date()
+        category.updatedAt = Date()
 
         try await coreDataStack.saveContext()
 
-        // When: Deleting the entity
-        context.delete(testEntity)
+        // When: Deleting the category
+        context.delete(category)
         try await coreDataStack.saveContext()
 
-        // Then: Entity should be deleted
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
+        // Then: Category should be deleted
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
         let results = try context.fetch(fetchRequest)
 
-        XCTAssertEqual(results.count, 0, "Should have no entities after deletion")
+        XCTAssertEqual(results.count, 0, "Should have no categories after deletion")
     }
 
     // MARK: - Update Tests
 
     func testUpdateEntity() async throws {
-        // Given: A saved test entity
+        // Given: A saved category
         let context = coreDataStack.viewContext
-        let testEntity = TestEntity(context: context)
+        let category = ABudget.Category(context: context)
         let originalId = UUID()
-        testEntity.id = originalId
-        testEntity.name = "Original Name"
+        category.id = originalId
+        category.name = "Original Name"
+        category.isDefault = false
+        category.sortOrder = 1
+        category.createdAt = Date()
+        category.updatedAt = Date()
 
         try await coreDataStack.saveContext()
 
-        // When: Updating the entity
-        testEntity.name = "Updated Name"
+        // When: Updating the category
+        category.name = "Updated Name"
+        category.updatedAt = Date()
         try await coreDataStack.saveContext()
 
-        // Then: Entity should be updated
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
+        // Then: Category should be updated
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
         fetchRequest.predicate = NSPredicate(format: "id == %@", originalId as CVarArg)
         let results = try context.fetch(fetchRequest)
 
-        XCTAssertEqual(results.count, 1, "Should have exactly one entity")
+        XCTAssertEqual(results.count, 1, "Should have exactly one category")
         XCTAssertEqual(results.first?.name, "Updated Name", "Name should be updated")
         XCTAssertEqual(results.first?.id, originalId, "ID should remain the same")
     }
@@ -233,18 +270,18 @@ final class CoreDataStackTests: XCTestCase {
         // Given: A preview Core Data stack
         let previewStack = CoreDataStack.preview
 
-        // When: Fetching entities from preview
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
+        // When: Fetching categories from preview
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
         let results = try previewStack.viewContext.fetch(fetchRequest)
 
         // Then: Preview data should be present
-        XCTAssertEqual(results.count, 5, "Preview should contain 5 sample entities")
+        XCTAssertEqual(results.count, 5, "Preview should contain 5 sample categories")
 
         // Verify the sample data
-        for (_, entity) in results.enumerated() {
-            XCTAssertNotNil(entity.id, "Entity ID should not be nil")
-            XCTAssertTrue(entity.name?.contains("Test Item") ?? false,
-                          "Entity name should contain 'Test Item'")
+        for (_, category) in results.enumerated() {
+            XCTAssertNotNil(category.id, "Category ID should not be nil")
+            XCTAssertTrue(category.name?.contains("Sample Category") ?? false,
+                          "Category name should contain 'Sample Category'")
         }
     }
 
@@ -254,18 +291,22 @@ final class CoreDataStackTests: XCTestCase {
 
         // When: Adding data to preview
         let context = previewStack.viewContext
-        let entity = TestEntity(context: context)
-        entity.id = UUID()
-        entity.name = "Preview Test"
+        let category = ABudget.Category(context: context)
+        category.id = UUID()
+        category.name = "Preview Test"
+        category.isDefault = false
+        category.sortOrder = 99
+        category.createdAt = Date()
+        category.updatedAt = Date()
 
         try previewStack.saveContextSync()
 
         // Then: Data should exist in the preview context
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
         fetchRequest.predicate = NSPredicate(format: "name == %@", "Preview Test")
         let results = try context.fetch(fetchRequest)
 
-        XCTAssertEqual(results.count, 1, "Should find the preview test entity")
+        XCTAssertEqual(results.count, 1, "Should find the preview test category")
     }
 
     // MARK: - Background Context Tests
@@ -286,9 +327,13 @@ final class CoreDataStackTests: XCTestCase {
 
         // When: Performing a background task
         coreDataStack.performBackgroundTask { context in
-            let entity = TestEntity(context: context)
-            entity.id = UUID()
-            entity.name = "Background Entity"
+            let category = ABudget.Category(context: context)
+            category.id = UUID()
+            category.name = "Background Category"
+            category.isDefault = false
+            category.sortOrder = 1
+            category.createdAt = Date()
+            category.updatedAt = Date()
 
             do {
                 try context.save()
@@ -301,11 +346,11 @@ final class CoreDataStackTests: XCTestCase {
         // Then: Task should complete
         await fulfillment(of: [expectation], timeout: 5.0)
 
-        // Verify the entity was saved
-        let fetchRequest: NSFetchRequest<TestEntity> = TestEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", "Background Entity")
+        // Verify the category was saved
+        let fetchRequest: NSFetchRequest<ABudget.Category> = NSFetchRequest<ABudget.Category>(entityName: "Category")
+        fetchRequest.predicate = NSPredicate(format: "name == %@", "Background Category")
         let results = try coreDataStack.viewContext.fetch(fetchRequest)
 
-        XCTAssertEqual(results.count, 1, "Background entity should be saved")
+        XCTAssertEqual(results.count, 1, "Background category should be saved")
     }
 }

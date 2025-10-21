@@ -60,9 +60,13 @@ final class CoreDataStack: ObservableObject {
         // Add sample data for previews
         let context = stack.viewContext
         for i in 1...5 {
-            let testEntity = TestEntity(context: context)
-            testEntity.id = UUID()
-            testEntity.name = "Test Item \(i)"
+            let category = Category(context: context)
+            category.id = UUID()
+            category.name = "Sample Category \(i)"
+            category.isDefault = i == 1 // Make first category default
+            category.sortOrder = Int16(i)
+            category.createdAt = Date()
+            category.updatedAt = Date()
         }
 
         do {
