@@ -156,22 +156,18 @@ struct ParentCategoryPickerView: View {
             CategoryDTO(
                 id: UUID(),
                 name: "Housing",
-                parentId: nil,
-                isDefault: true,
-                sortOrder: 0,
-                subcategories: [],
-                createdAt: Date(),
-                updatedAt: Date()
+                isDefault: true, sortOrder: 0, createdAt: Date(), updatedAt: Date(), parentId: nil,
+                subcategories: []
             ),
             CategoryDTO(
                 id: UUID(),
                 name: "Transportation",
-                parentId: nil,
                 isDefault: true,
                 sortOrder: 1,
-                subcategories: [],
                 createdAt: Date(),
-                updatedAt: Date()
+                updatedAt: Date(),
+                parentId: nil,
+                subcategories: []
             )
         ],
         isEditing: false,
@@ -185,23 +181,15 @@ struct ParentCategoryPickerView: View {
         selectedParent: .constant(CategoryDTO(
             id: UUID(),
             name: "Housing",
-            parentId: nil,
-            isDefault: true,
-            sortOrder: 0,
-            subcategories: [],
-            createdAt: Date(),
-            updatedAt: Date()
+            isDefault: true, sortOrder: 0, createdAt: Date(), updatedAt: Date(), parentId: nil,
+            subcategories: []
         )),
         availableParents: [
             CategoryDTO(
                 id: UUID(),
                 name: "Housing",
-                parentId: nil,
-                isDefault: true,
-                sortOrder: 0,
-                subcategories: [],
-                createdAt: Date(),
-                updatedAt: Date()
+                isDefault: true, sortOrder: 0, createdAt: Date(), updatedAt: Date(), parentId: nil,
+                subcategories: []
             )
         ],
         isEditing: true,

@@ -13,7 +13,7 @@ struct SettingsView: View {
 
     var body: some View {
         let repository = CoreDataCategoryRepository(
-            context: CoreDataStack.shared.mainContext
+            context: CoreDataStack.shared.viewContext
         )
 
         CategoryListView(

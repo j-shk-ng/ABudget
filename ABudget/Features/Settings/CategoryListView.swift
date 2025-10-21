@@ -310,10 +310,10 @@ struct SubcategoryRowView: View {
 
 #Preview("Category List") {
     let repository = CoreDataCategoryRepository(
-        context: CoreDataStack.preview.mainContext
+        context: CoreDataStack.preview.viewContext
     )
 
-    return CategoryListView(
+    CategoryListView(
         viewModel: CategoryListViewModel(
             repository: repository,
             seeder: DefaultCategorySeeder(
@@ -325,7 +325,7 @@ struct SubcategoryRowView: View {
 
 #Preview("Empty State") {
     let repository = CoreDataCategoryRepository(
-        context: CoreDataStack.preview.mainContext
+        context: CoreDataStack.preview.viewContext
     )
 
     return CategoryListView(

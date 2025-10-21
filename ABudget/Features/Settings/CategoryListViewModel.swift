@@ -57,7 +57,7 @@ class CategoryListViewModel: ObservableObject {
             error = appError
             isLoading = false
         } catch {
-            self.error = .unknown
+            self.error = .unknown(error)
             isLoading = false
         }
     }
@@ -68,12 +68,12 @@ class CategoryListViewModel: ObservableObject {
         let newCategory = CategoryDTO(
             id: temporaryId,
             name: name,
-            parentId: parent?.id,
             isDefault: false,
             sortOrder: Int16(categories.count),
-            subcategories: [],
             createdAt: Date(),
-            updatedAt: Date()
+            updatedAt: Date(),
+            parentId: parent?.id,
+            subcategories: []
         )
 
         categories.append(newCategory)
@@ -81,9 +81,9 @@ class CategoryListViewModel: ObservableObject {
         do {
             let categoryToCreate = CategoryDTO(
                 name: name,
-                parentId: parent?.id,
                 isDefault: false,
-                sortOrder: Int16(categories.count)
+                sortOrder: Int16(categories.count),
+                parentId: parent?.id
             )
 
             let createdCategory = try await repository.create(categoryToCreate)
@@ -102,7 +102,7 @@ class CategoryListViewModel: ObservableObject {
         } catch {
             // Rollback optimistic update
             categories.removeAll { $0.id == temporaryId }
-            self.error = .unknown
+            self.error = .unknown(error)
         }
     }
 
@@ -136,7 +136,7 @@ class CategoryListViewModel: ObservableObject {
         } catch {
             // Rollback optimistic update
             categories = originalCategories
-            self.error = .unknown
+            self.error = .unknown(error)
         }
     }
 
@@ -148,7 +148,7 @@ class CategoryListViewModel: ObservableObject {
         categories.removeAll { $0.id == category.id }
 
         do {
-            try await repository.delete(id: category.id)
+            try await repository.delete(category.id)
 
             // Reload to get fresh data with cascade deletions
             await loadCategories()
@@ -159,7 +159,7 @@ class CategoryListViewModel: ObservableObject {
         } catch {
             // Rollback optimistic update
             categories = originalCategories
-            self.error = .unknown
+            self.error = .unknown(error)
         }
     }
 
