@@ -43,9 +43,8 @@ final class CoreDataStackTests: XCTestCase {
         // Then: View context should be configured correctly
         XCTAssertTrue(context.automaticallyMergesChangesFromParent,
                       "View context should automatically merge changes from parent")
-        XCTAssertEqual(context.mergePolicy as? NSMergePolicy,
-                       NSMergeByPropertyObjectTrumpMergePolicy,
-                       "View context should use NSMergeByPropertyObjectTrumpMergePolicy")
+        XCTAssertTrue(context.mergePolicy as AnyObject === NSMergeByPropertyObjectTrumpMergePolicy,
+                      "View context should use NSMergeByPropertyObjectTrumpMergePolicy")
     }
 
     // MARK: - Save Tests
@@ -242,7 +241,7 @@ final class CoreDataStackTests: XCTestCase {
         XCTAssertEqual(results.count, 5, "Preview should contain 5 sample entities")
 
         // Verify the sample data
-        for (index, entity) in results.enumerated() {
+        for (_, entity) in results.enumerated() {
             XCTAssertNotNil(entity.id, "Entity ID should not be nil")
             XCTAssertTrue(entity.name?.contains("Test Item") ?? false,
                           "Entity name should contain 'Test Item'")
@@ -277,9 +276,8 @@ final class CoreDataStackTests: XCTestCase {
 
         // Then: Background context should be configured correctly
         XCTAssertNotNil(backgroundContext, "Background context should not be nil")
-        XCTAssertEqual(backgroundContext.mergePolicy as? NSMergePolicy,
-                       NSMergeByPropertyObjectTrumpMergePolicy,
-                       "Background context should use correct merge policy")
+        XCTAssertTrue(backgroundContext.mergePolicy as AnyObject === NSMergeByPropertyObjectTrumpMergePolicy,
+                      "Background context should use correct merge policy")
     }
 
     func testPerformBackgroundTask() async throws {

@@ -7,10 +7,12 @@
 
 import Foundation
 import CoreData
+import SwiftUI
+import Combine
 
 /// Manages the Core Data stack for the ABudget application
-@MainActor
 final class CoreDataStack: ObservableObject {
+    @Published var isLoaded = false
 
     // MARK: - Singleton
 
@@ -34,7 +36,7 @@ final class CoreDataStack: ObservableObject {
         persistentContainer = NSPersistentContainer(name: "ABudget")
 
         if inMemory {
-            persistentContainer.persistentStoreDescriptor.url = URL(fileURLWithPath: "/dev/null")
+            persistentContainer.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         }
 
         persistentContainer.loadPersistentStores { description, error in
@@ -75,6 +77,7 @@ final class CoreDataStack: ObservableObject {
     // MARK: - Save Context
 
     /// Saves the view context if there are changes
+    @MainActor
     func saveContext() async throws {
         let context = viewContext
         guard context.hasChanges else { return }
@@ -87,6 +90,7 @@ final class CoreDataStack: ObservableObject {
     }
 
     /// Saves the view context synchronously (use sparingly, prefer async version)
+    @MainActor
     func saveContextSync() throws {
         let context = viewContext
         guard context.hasChanges else { return }

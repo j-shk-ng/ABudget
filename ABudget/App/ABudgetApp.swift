@@ -12,7 +12,7 @@ struct ABudgetApp: App {
 
     // MARK: - Properties
 
-    @StateObject private var coreDataStack = CoreDataStack.shared
+    private let coreDataStack = CoreDataStack.shared
 
     // MARK: - Body
 
@@ -20,7 +20,6 @@ struct ABudgetApp: App {
         WindowGroup {
             MainTabView()
                 .environment(\.managedObjectContext, coreDataStack.viewContext)
-                .environmentObject(coreDataStack)
         }
     }
 }
