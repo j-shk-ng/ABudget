@@ -12,18 +12,18 @@ struct SettingsView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                Spacer()
+        let repository = CoreDataCategoryRepository(
+            context: CoreDataStack.shared.viewContext
+        )
 
-                Text("Settings")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-
-                Spacer()
-            }
-            .navigationTitle("Settings")
-        }
+        CategoryListView(
+            viewModel: CategoryListViewModel(
+                repository: repository,
+                seeder: DefaultCategorySeeder(
+                    repository: repository
+                )
+            )
+        )
     }
 }
 
