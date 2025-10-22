@@ -7,23 +7,13 @@
 
 import SwiftUI
 
+/// Main Budget tab - delegates to BudgetListView
 struct BudgetView: View {
 
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                Spacer()
-
-                Text("Budget")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-
-                Spacer()
-            }
-            .navigationTitle("Budget")
-        }
+        BudgetListView()
     }
 }
 
@@ -31,4 +21,5 @@ struct BudgetView: View {
 
 #Preview {
     BudgetView()
+        .environment(\.managedObjectContext, CoreDataStack.preview.viewContext)
 }
