@@ -7,23 +7,13 @@
 
 import SwiftUI
 
+/// Main Transactions tab - delegates to TransactionListView
 struct TransactionsView: View {
 
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                Spacer()
-
-                Text("Transactions")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-
-                Spacer()
-            }
-            .navigationTitle("Transactions")
-        }
+        TransactionListView()
     }
 }
 
@@ -31,4 +21,5 @@ struct TransactionsView: View {
 
 #Preview {
     TransactionsView()
+        .environment(\.managedObjectContext, CoreDataStack.preview.viewContext)
 }
