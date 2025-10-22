@@ -7,6 +7,7 @@
         <attribute name="methodology" optional="NO" attributeType="String" defaultValueString="zeroBased"/>
         <attribute name="startDate" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="updatedAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="categoryAllocations" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CategoryAllocation" inverseName="budgetPeriod" inverseEntity="CategoryAllocation"/>
         <relationship name="incomeSources" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="IncomeSource" inverseName="budgetPeriod" inverseEntity="IncomeSource"/>
         <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Transaction" inverseName="budgetPeriod" inverseEntity="Transaction"/>
     </entity>
@@ -17,10 +18,20 @@
         <attribute name="name" optional="NO" attributeType="String"/>
         <attribute name="sortOrder" optional="NO" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="updatedAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="allocations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CategoryAllocation" inverseName="category" inverseEntity="CategoryAllocation"/>
         <relationship name="children" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Category" inverseName="parent" inverseEntity="Category"/>
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="children" inverseEntity="Category"/>
         <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Transaction" inverseName="category" inverseEntity="Transaction"/>
         <relationship name="transactionsAsSubCategory" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Transaction" inverseName="subCategory" inverseEntity="Transaction"/>
+    </entity>
+    <entity name="CategoryAllocation" representedClassName="CategoryAllocation" syncable="YES" codeGenerationType="class">
+        <attribute name="carryOverAmount" optional="NO" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="createdAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="NO" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="plannedAmount" optional="NO" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="updatedAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="budgetPeriod" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BudgetPeriod" inverseName="categoryAllocations" inverseEntity="BudgetPeriod"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="allocations" inverseEntity="Category"/>
     </entity>
     <entity name="IncomeSource" representedClassName="IncomeSource" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="NO" attributeType="Decimal" defaultValueString="0.0"/>
@@ -43,5 +54,13 @@
         <relationship name="budgetPeriod" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BudgetPeriod" inverseName="transactions" inverseEntity="BudgetPeriod"/>
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="transactions" inverseEntity="Category"/>
         <relationship name="subCategory" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="transactionsAsSubCategory" inverseEntity="Category"/>
+    </entity>
+    <entity name="UserSettings" representedClassName="UserSettings" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="NO" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lastViewedBudgetPeriodId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="needsPercentage" optional="NO" attributeType="Decimal" defaultValueString="50"/>
+        <attribute name="savingsPercentage" optional="NO" attributeType="Decimal" defaultValueString="20"/>
+        <attribute name="updatedAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="wantsPercentage" optional="NO" attributeType="Decimal" defaultValueString="30"/>
     </entity>
 </model>
